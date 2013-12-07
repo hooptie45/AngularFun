@@ -1,7 +1,56 @@
+components = {
+	'ngAnimate': 'libs/angular-animate.min.js'
+	'ngRoute': 'libs/angular-route.min.js'
+}
+
 # Build configurations
 module.exports = (grunt) ->
 	require('load-grunt-tasks')(grunt)
 	require('time-grunt')(grunt)
+
+	fontTypes = [
+		'eot'
+		'svg'
+		'ttf'
+		'woff'
+	]
+
+	imageTypes = [
+		'gif'
+		'jpeg'
+		'jpg'
+		'png'
+		'svg'
+		'webp'
+	]
+
+	minimatcherize = (list) ->
+		joined = list.join()
+
+		"**/*.{#{joined}}"
+
+	devComponents = 'ngMockE2E': 'libs/angular-mocks.js'
+
+	for k, v of components
+		devComponents[k] = v
+
+	devShimmerSrc = [
+		'**/*.{coffee,js}'
+		'!libs/html5shiv-printshiv.js'
+		'!libs/json3.min.js'
+		'!libs/require.js'
+	]
+
+	shimmerSrc = []
+
+	devShimmerSrc.forEach (src) ->
+		shimmerSrc.push src
+
+	shimmerSrc.push '!libs/angular-mocks.js'
+	shimmerSrc.push '!backend/**/*.*'
+
+	fonts = minimatcherize fontTypes
+	images = minimatcherize imageTypes
 
 	grunt.initConfig
 		# Gets dependent components from bower
@@ -96,25 +145,19 @@ module.exports = (grunt) ->
 					dest: '.temp/'
 					expand: true
 				,
-					cwd: 'bower_components/angular/'
-					src: 'angular.*'
+					cwd: 'bower_components/'
+					src: [
+						'angular/angular.min.js'
+						'angular-animate/angular-animate.min.js'
+						'angular-mocks/angular-mocks.js'
+						'angular-route/angular-route.min.js'
+						'html5shiv/dist/html5shiv-printshiv.js'
+						'json3/lib/json3.min.js'
+						'requirejs/require.js'
+					]
 					dest: '.temp/scripts/libs/'
 					expand: true
-				,
-					cwd: 'bower_components/angular-animate/'
-					src: 'angular-animate.*'
-					dest: '.temp/scripts/libs/'
-					expand: true
-				,
-					cwd: 'bower_components/angular-mocks/'
-					src: 'angular-mocks.*'
-					dest: '.temp/scripts/libs/'
-					expand: true
-				,
-					cwd: 'bower_components/angular-route/'
-					src: 'angular-route.*'
-					dest: '.temp/scripts/libs/'
-					expand: true
+					flatten: true
 				,
 					cwd: 'bower_components/bootstrap/less/'
 					src: '*'
@@ -124,21 +167,6 @@ module.exports = (grunt) ->
 					cwd: 'bower_components/bootstrap/fonts/'
 					src: '*'
 					dest: '.temp/fonts/'
-					expand: true
-				,
-					cwd: 'bower_components/html5shiv/dist/'
-					src: 'html5shiv-printshiv.js'
-					dest: '.temp/scripts/libs/'
-					expand: true
-				,
-					cwd: 'bower_components/json3/lib/'
-					src: 'json3.min.js'
-					dest: '.temp/scripts/libs/'
-					expand: true
-				,
-					cwd: 'bower_components/requirejs/'
-					src: 'require.js'
-					dest: '.temp/scripts/libs/'
 					expand: true
 				]
 			dev:
@@ -150,13 +178,13 @@ module.exports = (grunt) ->
 				files: [
 					# images
 					cwd: '.temp/'
-					src: '**/*.{eot,svg,ttf,woff}'
+					src: fonts
 					dest: 'dist/'
 					expand: true
 				,
 					# fonts
 					cwd: '.temp/'
-					src: '**/*.{gif,jpeg,jpg,png,svg,webp}'
+					src: images
 					dest: 'dist/'
 					expand: true
 				,
@@ -183,7 +211,7 @@ module.exports = (grunt) ->
 		# glyphicons-halflings.png -> glyphicons-halflings.6c8829cc6f.png
 		# scripts.min.js -> scripts.min.6c355e03ee.js
 		hash:
-			images: '.temp/**/*.{gif,jpeg,jpg,png,svg,webp}'
+			images: ".temp/#{images}"
 			scripts:
 				cwd: '.temp/scripts/'
 				src: [
@@ -198,7 +226,7 @@ module.exports = (grunt) ->
 			images:
 				files: [
 					cwd: '.temp/'
-					src: '**/*.{gif,jpeg,jpg,png}'
+					src: images
 					dest: '.temp/'
 					expand: true
 				]
@@ -361,41 +389,18 @@ module.exports = (grunt) ->
 		shimmer:
 			dev:
 				cwd: '.temp/scripts/'
-				src: [
-					'**/*.{coffee,js}'
-					'!libs/angular.{coffee,js}'
-					'!libs/angular-animate.{coffee,js}'
-					'!libs/angular-route.{coffee,js}'
-					'!libs/html5shiv-printshiv.{coffee,js}'
-					'!libs/json3.min.{coffee,js}'
-					'!libs/require.{coffee,js}'
-				]
+				src: devShimmerSrc
 				order: [
 					'libs/angular.min.js'
-					'NGAPP':
-						'ngAnimate': 'libs/angular-animate.min.js'
-						'ngMockE2E': 'libs/angular-mocks.js'
-						'ngRoute': 'libs/angular-route.min.js'
+					'NGAPP': devComponents
 				]
 				require: 'NGBOOTSTRAP'
 			prod:
 				cwd: '<%= shimmer.dev.cwd %>'
-				src: [
-					'**/*.{coffee,js}'
-					'!libs/angular.{coffee,js}'
-					'!libs/angular-animate.{coffee,js}'
-					'!libs/angular-mocks.{coffee,js}'
-					'!libs/angular-route.{coffee,js}'
-					'!libs/html5shiv-printshiv.{coffee,js}'
-					'!libs/json3.min.{coffee,js}'
-					'!libs/require.{coffee,js}'
-					'!backend/**/*.*'
-				]
+				src: shimmerSrc
 				order: [
 					'libs/angular.min.js'
-					'NGAPP':
-						'ngAnimate': 'libs/angular-animate.min.js'
-						'ngRoute': 'libs/angular-route.min.js'
+					'NGAPP': components
 				]
 				require: '<%= shimmer.dev.require %>'
 
