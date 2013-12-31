@@ -41,6 +41,10 @@
 		"grunt-hustler": "~4.0.5",
 		"grunt-karma": "~0.6.2",
 		"grunt-prompt": "~0.1.2",
+		"gulp": "3.2.2",
+		"gulp-coffee": "1.2.4",
+		"gulp-less": "1.1.1",
+		"gulp-util": "2.2.2",
 		"karma-junit-reporter": "~0.2.1",
 		"load-grunt-tasks": "~0.2.0",
 		"time-grunt": "~0.2.5"
