@@ -4,7 +4,7 @@ path = require 'path'
 module.exports = (grunt) ->
 	require('load-grunt-tasks')(grunt)
 	require('time-grunt')(grunt)
-
+	grunt.loadNpmTasks('grunt-devtools');
 	grunt.initConfig
 		settings:
 			distDirectory: 'dist'
